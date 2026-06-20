@@ -1,3 +1,4 @@
+```
 brew install aria2
 brew install mas
 mas install 497799835
@@ -14,3 +15,4 @@ xcrun simctl create "iPhone 17 Pro RN" \
 xcrun simctl list devices
 xcrun simctl boot <device-id>
 open -a Simulator
+```
