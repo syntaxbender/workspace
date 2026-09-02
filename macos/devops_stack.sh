@@ -48,9 +48,11 @@ brew install awscli
 brew install --cask gcloud-cli
 
 echo "==> Installing infrastructure tools"
-brew install \
-  terraform \
-  terragrunt
+
+brew tap hashicorp/tap
+brew trust --formula hashicorp/tap/terraform
+brew install hashicorp/tap/terraform
+brew install terragrunt
 
 echo "==> Installing helpers"
 brew install \
