@@ -47,6 +47,12 @@ echo "==> Installing cloud CLIs"
 brew install awscli
 brew install --cask gcloud-cli
 
+echo "==> Installing virtualization tools"
+
+brew install --cask \
+  vagrant \
+  orbstack
+
 echo "==> Installing infrastructure tools"
 
 brew tap hashicorp/tap
