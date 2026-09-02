@@ -69,7 +69,7 @@ echo "==> Terminal araçları kuruluyor..."
 
 brew install --cask ghostty
 brew install --cask font-meslo-for-powerlevel10k
-
+brew install --cask visual-studio-code
 
 # ------------------------------------------------------------
 # Rectangle
