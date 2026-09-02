@@ -24,7 +24,7 @@ if [[ -x /opt/homebrew/bin/brew ]]; then
     if ! grep -q '/opt/homebrew/bin/brew shellenv' "$HOME/.zprofile" 2>/dev/null; then
         echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
     fi
-
+  
 elif [[ -x /usr/local/bin/brew ]]; then
     eval "$(/usr/local/bin/brew shellenv)"
 
@@ -58,8 +58,8 @@ brew install \
     htop \
     ncdu \
     tmux \
-    lazygit
-
+    lazygit \
+    nano
 
 # ------------------------------------------------------------
 # Ghostty + Powerlevel10k font
