@@ -2,6 +2,107 @@
 
 set -euo pipefail
 
+install_filezilla() {
+  echo "==> Installing FileZilla"
+
+  if [[ -d "/Applications/FileZilla.app" ]]; then
+    echo "FileZilla already installed, skipping"
+    return 0
+  fi
+
+  local page wrapper iv key data download_html filezilla_url tmp
+
+  if ! page="$(
+    curl -fsSL \
+      -A 'Mozilla/5.0 (Macintosh; Apple Silicon Mac OS X)' \
+      'https://filezilla-project.org/download.php?show_all=1' \
+      | tr -d '\n'
+  )"; then
+    echo "Warning: Failed to fetch FileZilla download page, skipping"
+    return 0
+  fi
+
+  wrapper="$(
+    printf '%s' "$page" \
+      | grep -o '<div hidden id="contentwrapper"[^>]*>[^<]*</div>' \
+      | head -n1 \
+      || true
+  )"
+
+  if [[ -z "$wrapper" ]]; then
+    echo "Warning: FileZilla download metadata not found, skipping"
+    return 0
+  fi
+
+  iv="$(
+    printf '%s' "$wrapper" \
+      | sed -E 's/.* v1="([^"]+)".*/\1/' \
+      | /usr/bin/base64 -D \
+      | od -An -tx1 \
+      | tr -d ' \n'
+  )"
+
+  key="$(
+    printf '%s' "$wrapper" \
+      | sed -E 's/.* v2="([^"]+)".*/\1/' \
+      | /usr/bin/base64 -D \
+      | od -An -tx1 \
+      | tr -d ' \n'
+  )"
+
+  data="$(
+    printf '%s' "$wrapper" \
+      | sed -E 's/^[^>]*>//; s#</div>$##'
+  )"
+
+  if ! download_html="$(
+    printf '%s' "$data" \
+      | /usr/bin/base64 -D \
+      | openssl enc -d -aes-256-cbc -K "$key" -iv "$iv"
+  )"; then
+    echo "Warning: Failed to decode FileZilla download metadata, skipping"
+    return 0
+  fi
+
+  filezilla_url="$(
+    printf '%s' "$download_html" \
+      | grep -o 'https://[^"]*FileZilla_[^"]*_macos-arm64\.app\.tar\.bz2[^"]*' \
+      | head -n1 \
+      | sed 's/&amp;/\&/g' \
+      || true
+  )"
+
+  if [[ -z "$filezilla_url" ]]; then
+    echo "Warning: FileZilla download URL not found, skipping"
+    return 0
+  fi
+
+  tmp="$(mktemp -d)"
+
+  if ! curl -fL "$filezilla_url" -o "$tmp/filezilla.tar.bz2"; then
+    echo "Warning: Failed to download FileZilla, skipping"
+    rm -rf "$tmp"
+    return 0
+  fi
+
+  if ! tar -xjf "$tmp/filezilla.tar.bz2" -C "$tmp"; then
+    echo "Warning: Failed to extract FileZilla, skipping"
+    rm -rf "$tmp"
+    return 0
+  fi
+
+  if [[ ! -d "$tmp/FileZilla.app" ]]; then
+    echo "Warning: FileZilla.app not found in archive, skipping"
+    rm -rf "$tmp"
+    return 0
+  fi
+
+  mv "$tmp/FileZilla.app" /Applications/
+  rm -rf "$tmp"
+
+  echo "FileZilla installed successfully"
+}
+
 echo "==> Updating Homebrew"
 brew update
 
@@ -83,10 +184,14 @@ brew install \
 
 brew install --cask dbeaver-community
 
+# libpq is keg-only
+grep -qxF 'export PATH="/opt/homebrew/opt/libpq/bin:$PATH"' ~/.zshrc || \
+  echo 'export PATH="/opt/homebrew/opt/libpq/bin:$PATH"' >> ~/.zshrc
+
 echo "==> Installing file and storage tools"
 
 brew install rclone
-brew install --cask filezilla
+install_filezilla
 
 echo
 echo "DevOps stack installed."
