@@ -68,5 +68,25 @@ brew install \
   curl \
   openssl
 
+echo "==> Installing VPN clients"
+
+brew install wireguard-tools
+
+brew install --cask \
+  tunnelblick \
+  
+echo "==> Installing database tools"
+
+brew install \
+  libpq \
+  redis
+
+brew install --cask dbeaver-community
+
+echo "==> Installing file and storage tools"
+
+brew install rclone
+brew install --cask filezilla
+
 echo
 echo "DevOps stack installed."
