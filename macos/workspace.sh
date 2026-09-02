@@ -69,7 +69,6 @@ echo "==> Terminal araçları kuruluyor..."
 
 brew install --cask ghostty
 brew install --cask font-meslo-for-powerlevel10k
-brew install --cask visual-studio-code
 
 # ------------------------------------------------------------
 # Rectangle
@@ -223,6 +222,44 @@ window-padding-x = 8
 window-padding-y = 8
 EOF
 
+# ------------------------------------------------------------
+# macOS preferences
+# ------------------------------------------------------------
+
+echo "==> macOS ayarları uygulanıyor..."
+
+# Dock icon boyutu
+defaults write com.apple.dock tilesize -int 42
+
+# Dock'u yeniden başlat
+killall Dock 2>/dev/null || true
+
+
+# ------------------------------------------------------------
+# Keyboard shortcuts
+# ------------------------------------------------------------
+
+echo '==> Keyboard shortcuts ayarlanıyor...'
+
+# Aynı uygulamanın pencereleri arasında geçiş: Command + "
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 27 \
+'{
+    enabled = 1;
+    value = {
+        parameters = (
+            34,
+            10,
+            1048576
+        );
+        type = standard;
+    };
+}'
+
+ACTIVATE_SETTINGS="/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings"
+
+if [[ -x "$ACTIVATE_SETTINGS" ]]; then
+    "$ACTIVATE_SETTINGS" -u
+fi
 
 # ------------------------------------------------------------
 # GUI applications
@@ -232,7 +269,11 @@ echo "==> GUI uygulamaları kuruluyor..."
 
 brew install --cask google-chrome
 brew install --cask kate
+brew install --cask visual-studio-code
 
+brew tap lzhgus/tap
+brew trust --cask lzhgus/tap/capso
+brew install --cask capso
 
 # ------------------------------------------------------------
 # Quarantine temizliği
