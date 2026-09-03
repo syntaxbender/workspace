@@ -175,7 +175,7 @@ brew install wireguard-tools
 
 brew install --cask \
   tunnelblick \
-  
+  warp
 echo "==> Installing database tools"
 
 brew install \
@@ -185,8 +185,26 @@ brew install \
 brew install --cask dbeaver-community
 
 # libpq is keg-only
-grep -qxF 'export PATH="/opt/homebrew/opt/libpq/bin:$PATH"' ~/.zshrc || \
-  echo 'export PATH="/opt/homebrew/opt/libpq/bin:$PATH"' >> ~/.zshrc
+ZSH_CONFIG_DIR="$HOME/.config/workspace/zshrc.d"
+DEVOPS_ZSH_CONFIG="$ZSH_CONFIG_DIR/20-devops.zsh"
+ZSH_CONFIG_LOADER='for config_file in "$HOME"/.config/workspace/zshrc.d/*.zsh(N); do source "$config_file"; done; unset config_file'
+
+mkdir -p "$ZSH_CONFIG_DIR"
+
+cat > "$DEVOPS_ZSH_CONFIG" <<'EOF'
+# This file is managed by devops_stack.sh.
+if [[ ":$PATH:" != *":/opt/homebrew/opt/libpq/bin:"* ]]; then
+  export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+fi
+EOF
+
+if [[ ! -e "$HOME/.zshrc" ]]; then
+  touch "$HOME/.zshrc"
+fi
+
+if ! /usr/bin/grep -qxF "$ZSH_CONFIG_LOADER" "$HOME/.zshrc"; then
+  printf '\n%s\n' "$ZSH_CONFIG_LOADER" >> "$HOME/.zshrc"
+fi
 
 echo "==> Installing file and storage tools"
 
