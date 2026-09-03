@@ -175,7 +175,7 @@ brew install wireguard-tools
 
 brew install --cask \
   tunnelblick \
-  warp
+  cloudflare-warp
 echo "==> Installing database tools"
 
 brew install \
